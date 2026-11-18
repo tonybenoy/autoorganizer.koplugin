@@ -1,7 +1,7 @@
 -- Run from the repo root:  lua tests/test_core.lua   (Lua 5.1 / LuaJIT / 5.4 all work)
 --   or without Lua installed:  luajittex --luaonly tests/test_core.lua
 package.path = "./?.lua;" .. package.path
-local Core = require("sbm_core")
+local Core = require("autoorganizer_core")
 
 local fails = 0
 local function eq(got, want, label)

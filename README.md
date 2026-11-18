@@ -1,4 +1,4 @@
-# sbm.koplugin — Library organiser for KOReader
+# autoorganizer.koplugin — Library organiser for KOReader
 
 Finds books anywhere on your device and files them tidily, e.g.
 
@@ -26,10 +26,10 @@ Herbert, Frank/Dune.epub
   every 10 minutes while the file manager is open. Already-handled books are skipped.
 
 ## Install
-Copy this folder to `koreader/plugins/sbm.koplugin` and restart KOReader:
+Copy this folder to `koreader/plugins/autoorganizer.koplugin` and restart KOReader:
 
 ```
-cd koreader/plugins && git clone https://github.com/tonybenoy/sbm.koplugin
+cd koreader/plugins && git clone https://github.com/tonybenoy/autoorganizer.koplugin
 ```
 
 Then open **Tools → Library organiser**, pick a **Library folder** (where books are filed),

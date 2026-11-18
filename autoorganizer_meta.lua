@@ -1,5 +1,5 @@
 -- Metadata sources: embedded (via KOReader's document engines) and online (Open Library).
-local Core = require("sbm_core")
+local Core = require("autoorganizer_core")
 
 local Meta = {}
 
@@ -36,7 +36,7 @@ local function http_get_json(url)
         local code = socket.skip(1, https.request{
             url = url,
             method = "GET",
-            headers = { ["User-Agent"] = "KOReader-SBM-plugin" },
+            headers = { ["User-Agent"] = "KOReader-AutoOrganizer-plugin" },
             sink = socketutil.table_sink(sink),
         })
         socketutil:reset_timeout()

@@ -4,8 +4,8 @@ local DataStorage = require("datastorage")
 local LuaSettings = require("luasettings")
 local UIManager = require("ui/uimanager")
 local lfs = require("libs/libkoreader-lfs")
-local Core = require("sbm_core")
-local Meta = require("sbm_meta")
+local Core = require("autoorganizer_core")
+local Meta = require("autoorganizer_meta")
 
 local Organizer = {}
 Organizer.__index = Organizer
@@ -13,7 +13,7 @@ Organizer.__index = Organizer
 function Organizer:new(settings)
     local o = setmetatable({}, self)
     o.settings = settings -- function returning the current config table
-    o.state = LuaSettings:open(DataStorage:getSettingsDir() .. "/sbm_state.lua")
+    o.state = LuaSettings:open(DataStorage:getSettingsDir() .. "/autoorganizer_state.lua")
     o.running = false
     return o
 end

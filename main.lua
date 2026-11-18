@@ -4,20 +4,25 @@ local ConfirmBox = require("ui/widget/confirmbox")
 local TextViewer = require("ui/widget/textviewer")
 local UIManager = require("ui/uimanager")
 local WidgetContainer = require("ui/widget/container/widgetcontainer")
-local Core = require("sbm_core")
-local Organizer = require("sbm_organizer")
+local Core = require("autoorganizer_core")
+local Organizer = require("autoorganizer_organizer")
 local _ = require("gettext")
 
-local Sbm = WidgetContainer:extend{
-    name = "sbm",
+local AutoOrganizer = WidgetContainer:extend{
+    name = "autoorganizer",
     is_doc_only = false,
 }
 
 local AUTO_DELAY = 10          -- seconds after start/resume before the automatic scan
 local DEFAULT_INTERVAL = 10 * 60
 
-function Sbm:config()
-    local cfg = G_reader_settings:readSetting("sbm") or {}
+function AutoOrganizer:config()
+    local cfg = G_reader_settings:readSetting("autoorganizer")
+    if not cfg then
+        -- migrate settings from the plugin's former name ("sbm")
+        cfg = G_reader_settings:readSetting("sbm") or {}
+        G_reader_settings:saveSetting("autoorganizer", cfg)
+    end
     for k, v in pairs(Core.DEFAULTS) do
         if cfg[k] == nil then cfg[k] = v end
     end
@@ -35,13 +40,13 @@ function Sbm:config()
     return cfg
 end
 
-function Sbm:set(key, value)
-    local cfg = G_reader_settings:readSetting("sbm") or {}
+function AutoOrganizer:set(key, value)
+    local cfg = self:config()
     cfg[key] = value
-    G_reader_settings:saveSetting("sbm", cfg)
+    G_reader_settings:saveSetting("autoorganizer", cfg)
 end
 
-function Sbm:init()
+function AutoOrganizer:init()
     self.organizer = Organizer:new(function() return self:config() end)
     self.ui.menu:registerToMainMenu(self)
     -- Only the file manager auto-scans; never touch files while a book is open.
@@ -50,7 +55,7 @@ function Sbm:init()
     if self.in_fm then self:scheduleAuto(AUTO_DELAY) end
 end
 
-function Sbm:scheduleAuto(delay)
+function AutoOrganizer:scheduleAuto(delay)
     UIManager:unschedule(self._tick)
     local cfg = self:config()
     if self.in_fm and cfg.auto and cfg.library_root then
@@ -58,7 +63,7 @@ function Sbm:scheduleAuto(delay)
     end
 end
 
-function Sbm:autoRun()
+function AutoOrganizer:autoRun()
     local cfg = self:config()
     if not (self.in_fm and cfg.auto and cfg.library_root) then return end
     self.organizer:run{
@@ -76,7 +81,7 @@ function Sbm:autoRun()
     }
 end
 
-function Sbm:refreshFileManager()
+function AutoOrganizer:refreshFileManager()
     pcall(function()
         local FileManager = require("apps/filemanager/filemanager")
         if FileManager.instance then FileManager.instance:onRefresh() end
@@ -84,11 +89,11 @@ function Sbm:refreshFileManager()
 end
 
 -- Books copied while the device was asleep/USB-connected are picked up on wake.
-function Sbm:onResume() self:scheduleAuto(AUTO_DELAY) end
-function Sbm:onUsbPlugOut() self:scheduleAuto(AUTO_DELAY) end
-function Sbm:onCloseWidget() UIManager:unschedule(self._tick) end
+function AutoOrganizer:onResume() self:scheduleAuto(AUTO_DELAY) end
+function AutoOrganizer:onUsbPlugOut() self:scheduleAuto(AUTO_DELAY) end
+function AutoOrganizer:onCloseWidget() UIManager:unschedule(self._tick) end
 
-function Sbm:manualRun(dry_run)
+function AutoOrganizer:manualRun(dry_run)
     local cfg = self:config()
     if not cfg.library_root then
         UIManager:show(InfoMessage:new{ text = _("Choose a library folder first.") })
@@ -129,7 +134,7 @@ function Sbm:manualRun(dry_run)
     }
 end
 
-function Sbm:promptText(title, key, hint)
+function AutoOrganizer:promptText(title, key, hint)
     local dialog
     dialog = InputDialog:new{
         title = title,
@@ -149,7 +154,7 @@ function Sbm:promptText(title, key, hint)
 end
 
 -- Edit a list setting (one entry per line).
-function Sbm:promptList(title, key, hint)
+function AutoOrganizer:promptList(title, key, hint)
     local dialog
     dialog = InputDialog:new{
         title = title,
@@ -173,7 +178,7 @@ function Sbm:promptList(title, key, hint)
     dialog:onShowKeyboard()
 end
 
-function Sbm:pickFolder(on_pick)
+function AutoOrganizer:pickFolder(on_pick)
     local PathChooser = require("ui/widget/pathchooser")
     UIManager:show(PathChooser:new{
         select_directory = true,
@@ -183,9 +188,9 @@ function Sbm:pickFolder(on_pick)
     })
 end
 
-function Sbm:addToMainMenu(menu_items)
+function AutoOrganizer:addToMainMenu(menu_items)
     local hint = _("Placeholders: {author} {series} {index} {title}. Use / to make folders.")
-    menu_items.sbm = {
+    menu_items.autoorganizer = {
         text = _("Library organiser"),
         sorting_hint = "tools",
         sub_item_table = {
@@ -285,4 +290,4 @@ function Sbm:addToMainMenu(menu_items)
     }
 end
 
-return Sbm
+return AutoOrganizer
